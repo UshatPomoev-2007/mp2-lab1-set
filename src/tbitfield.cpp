@@ -9,14 +9,35 @@
 
 TBitField::TBitField(int len)
 {
+    BitLen = len;
+    if (len % sizeof(TELEM) * 8 == 0) {
+        MemLen = len / sizeof(TELEM) * 8;
+    }
+    else {
+        MemLen = len / sizeof(TELEM) * 8 + 1;
+    }
+    pMem = new TELEM[MemLen];
+    for (int i = 0;i < MemLen;i++) {
+        pMem[i] = (TELEM)0;
+    }
 }
 
 TBitField::TBitField(const TBitField &bf) // конструктор копирования
 {
+    if (this == &bf) {
+        return;
+    }
+    MemLen = bf.MemLen;
+    BitLen = bf.BitLen;
+    pMem = new TELEM[MemLen];
+    for (int i = 0;i < MemLen;i++) {
+        pMem[i] = bf.pMem[i];
+    }
 }
 
 TBitField::~TBitField()
 {
+    delete[](pMem);
 }
 
 int TBitField::GetMemIndex(const int n) const // индекс Мем для бита n
@@ -53,17 +74,39 @@ int TBitField::GetBit(const int n) const // получить значение б
 
 TBitField& TBitField::operator=(const TBitField &bf) // присваивание
 {
+    MemLen = bf.MemLen;
+    BitLen = bf.BitLen;
+    pMem = new TELEM[MemLen];
+    for (int i = 0;i < MemLen;i++) {
+        pMem[i] = bf.pMem[i];
+    }
     return *this;
 }
 
 int TBitField::operator==(const TBitField &bf) const // сравнение
 {
-  return 0;
+    if (BitLen != bf.BitLen) {
+        return(0);
+    }
+    for (int i = 0;i < MemLen;i++) {
+        if (pMem[i] != bf.pMem[i]) {
+            return(0);
+        }
+    }
+    return(1);
 }
 
 int TBitField::operator!=(const TBitField &bf) const // сравнение
 {
-  return 0;
+    if (BitLen != bf.BitLen) {
+        return(1);
+    }
+    for (int i = 0;i < MemLen;i++) {
+        if (pMem[i] != bf.pMem[i]) {
+            return(1);
+        }
+    }
+    return(0);
 }
 
 TBitField TBitField::operator|(const TBitField &bf) // операция "или"
